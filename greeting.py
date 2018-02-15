@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import jieba
-import pandas
 import matplotlib
+import codecs
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-import wordcloud
-import codecs
+from wordcloud import WordCloud, ImageColorGenerator
+from scipy.misc import imread
 
 __verbose__ = True
 __debug_mode__ = False
@@ -22,10 +21,40 @@ if __verbose__:
 file.close()
 segment = []
 # 使用`jieba`分词
-segs = jieba.cut(content)
-if __verbose__:
-    print('分词结果输出')
-for seg in segs:
-    if len(seg) > 1 and seg != '\n':
-        segment.append(seg)
-print(segment)
+
+
+back = imread('dog.png')
+
+wc = WordCloud(
+    background_color='white',
+    max_words=300,
+    mask=back,
+    max_font_size=200,
+    font_path='SimHei.ttf',
+
+)
+
+jieba.add_word('李文骞')
+jieba.add_word('赵仲文')
+jieba.add_word('刘成巧')
+jieba.add_word('蛋糕君')
+
+
+def stop_word(texts):
+    word_lists = []
+    word_generator = jieba.cut(texts, cut_all=False)
+    for word in word_generator:
+        word_lists.append(word)
+    return ' '.join(word_lists)
+
+
+text = stop_word(content)
+
+wc.generate(text)
+image_color = ImageColorGenerator(back)
+plt.show(wc)
+plt.axis('off')
+plt.figure()
+plt.imshow(wc)
+plt.axis('off')
+wc.to_file('greeting.png')
